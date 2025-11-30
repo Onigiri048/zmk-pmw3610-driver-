@@ -559,13 +559,28 @@ static bool automouse_triggered = false;
 
 static void activate_automouse_layer() {
     automouse_triggered = true;
-    zmk_keymap_layer_activate(AUTOMOUSE_LAYER);
-    k_timer_start(&automouse_layer_timer, K_MSEC(CONFIG_PMW3610_AUTOMOUSE_TIMEOUT_MS), K_NO_WAIT);
+
+    struct zmk_behavior_binding_event event = {
+        .position = 0,
+        .timestamp = k_uptime_get()
+    };
+
+    zmk_keymap_layer_activate(AUTOMOUSE_LAYER, &event);
+
+    k_timer_start(&automouse_layer_timer,
+                  K_MSEC(CONFIG_PMW3610_AUTOMOUSE_TIMEOUT_MS),
+                  K_NO_WAIT);
 }
 
 static void deactivate_automouse_layer(struct k_timer *timer) {
     automouse_triggered = false;
-    zmk_keymap_layer_deactivate(AUTOMOUSE_LAYER);
+
+    struct zmk_behavior_binding_event event = {
+        .position = 0,
+        .timestamp = k_uptime_get()
+    };
+
+    zmk_keymap_layer_deactivate(AUTOMOUSE_LAYER, &event);
 }
 
 K_TIMER_DEFINE(automouse_layer_timer, deactivate_automouse_layer, NULL);
